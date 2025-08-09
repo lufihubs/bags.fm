@@ -3,6 +3,10 @@
   "version": "1.0.0",
   "description": "A bot that fetches bags.fm migrated tokens and sends updates to Telegram",
   "main": "dist/index.js",
+  "engines": {
+    "node": ">=20.0.0",
+    "npm": ">=8.0.0"
+  },
   "scripts": {
     "start": "node dist/index.js",
     "dev": "tsx watch src/index.ts",
