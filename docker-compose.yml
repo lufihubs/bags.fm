@@ -1,0 +1,21 @@
+version: '3.8'
+
+services:
+  bags-fm-bot:
+    build: .
+    container_name: bags-fm-bot
+    restart: unless-stopped
+    environment:
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+      - TELEGRAM_CHAT_ID=${TELEGRAM_CHAT_ID}
+      - BAGS_FM_API_URL=${BAGS_FM_API_URL}
+      - CHECK_INTERVAL_MINUTES=${CHECK_INTERVAL_MINUTES}
+      - MARKET_CAP_THRESHOLD=${MARKET_CAP_THRESHOLD}
+      - NODE_ENV=production
+    volumes:
+      - ./data:/app/data
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"

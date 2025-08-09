@@ -1,53 +1,69 @@
-# Bags.fm Migration Bot
+# Bags.fm Token Migration Bot
 
-A Telegram bot that monitors bags.fm for new token migrations and automatically sends notifications to your Telegram channel.
+A production-ready Telegram bot that monitors bags.fm for token migrations above $100k market cap.
 
-## Features
+## 🚀 Deployment Options
 
-- 🔍 **Automatic Monitoring**: Checks bags.fm regularly for new token migrations
-- 📱 **Telegram Integration**: Sends formatted notifications to your Telegram channel
-- 💾 **Data Persistence**: Tracks migrations to avoid duplicate notifications
-- 📊 **Statistics**: View migration statistics with bot commands
-- ⚙️ **Configurable**: Customizable check intervals and settings
+### Option 1: Railway (Recommended - Free Tier Available)
 
-## Setup
-
-### 1. Prerequisites
-
-- Node.js (v16 or higher)
-- npm or yarn
-- A Telegram Bot Token (from @BotFather)
-- A Telegram Chat/Channel ID
-
-### 2. Installation
-
-1. Clone or download this project
-2. Install dependencies:
+1. **Install Railway CLI:**
    ```bash
-   npm install
+   npm install -g @railway/cli
    ```
 
-3. Copy the environment file:
+2. **Login and Deploy:**
    ```bash
-   copy .env.example .env
+   railway login
+   railway link
+   railway up
    ```
 
-4. Edit `.env` file with your configuration:
-   ```env
-   TELEGRAM_BOT_TOKEN=your_telegram_bot_token_here
-   TELEGRAM_CHAT_ID=your_telegram_chat_id_here
-   CHECK_INTERVAL_MINUTES=5
-   DATABASE_PATH=./data/migrations.json
-   BAGS_FM_URL=https://bags.fm
-   LOG_LEVEL=info
+3. **Set Environment Variables:**
+   ```bash
+   railway variables set TELEGRAM_BOT_TOKEN=7733553298:AAFLTcY8UvGdMIW3JnIIYYmtoCSEhOkUEG8
+   railway variables set TELEGRAM_CHAT_ID=-1002789011652
+   railway variables set BAGS_FM_API_URL=https://api2.bags.fm
+   railway variables set CHECK_INTERVAL_MINUTES=1
+   railway variables set MARKET_CAP_THRESHOLD=100000
    ```
 
-### 3. Getting Telegram Credentials
+### Option 2: Render (Free Tier)
 
-#### Bot Token:
-1. Message @BotFather on Telegram
-2. Use `/newbot` command
-3. Follow the prompts to create your bot
+1. **Connect GitHub Repository:**
+   - Push code to GitHub
+   - Connect to Render
+   - Set build command: `npm run build`
+   - Set start command: `npm start`
+
+2. **Environment Variables (in Render dashboard):**
+   ```
+   TELEGRAM_BOT_TOKEN=7733553298:AAFLTcY8UvGdMIW3JnIIYYmtoCSEhOkUEG8
+   TELEGRAM_CHAT_ID=-1002789011652
+   BAGS_FM_API_URL=https://api2.bags.fm
+   CHECK_INTERVAL_MINUTES=1
+   MARKET_CAP_THRESHOLD=100000
+   ```
+
+### Option 3: DigitalOcean App Platform
+
+1. **Create New App:**
+   - Connect GitHub repository
+   - Configure as Web Service
+   - Set build command: `npm run build`
+   - Set run command: `npm start`
+
+### Option 4: Docker Deployment (VPS)
+
+1. **Build and Run:**
+   ```bash
+   docker-compose up -d
+   ```
+
+2. **Or build manually:**
+   ```bash
+   docker build -t bags-fm-bot .
+   docker run -d --name bags-fm-bot --env-file .env bags-fm-bot
+   ```
 4. Copy the provided token
 
 #### Chat ID:
