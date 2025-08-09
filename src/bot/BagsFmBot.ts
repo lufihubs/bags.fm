@@ -148,9 +148,15 @@ export class BagsFmBot {
         this.logger.debug(`Token ${launch.symbol} exists in database: ${exists}`);
         
         if (!exists) {
-          await this.database.saveMigration(launch);
-          newMigrations.push(launch);
-          this.logger.info(`✅ NEW MIGRATION: ${launch.symbol} (${launch.contractAddress})`);
+          // Double-check: Verify again before saving to prevent any race conditions
+          const doubleCheckExists = await this.database.migrationExistsByDetails(launch);
+          if (!doubleCheckExists) {
+            await this.database.saveMigration(launch);
+            newMigrations.push(launch);
+            this.logger.info(`✅ NEW MIGRATION: ${launch.symbol} (${launch.contractAddress})`);
+          } else {
+            this.logger.info(`⚠️  RACE CONDITION PREVENTED: ${launch.symbol} (${launch.contractAddress}) - detected as duplicate on double-check`);
+          }
         } else {
           this.logger.info(`⏭️  DUPLICATE SKIPPED: ${launch.symbol} (${launch.contractAddress})`);
         }
