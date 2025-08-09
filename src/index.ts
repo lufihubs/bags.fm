@@ -40,6 +40,7 @@ async function main() {
 
   } catch (error) {
     logger.error('Failed to start bot:', error);
+    console.error('Full error details:', error);
     process.exit(1);
   }
 }

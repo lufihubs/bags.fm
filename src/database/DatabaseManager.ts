@@ -95,11 +95,41 @@ export class DatabaseManager {
 
   async migrationExistsByDetails(token: MigratedToken): Promise<boolean> {
     try {
-      return this.data.migrations.some(migration => 
-        migration.id === token.id || 
-        migration.contractAddress === token.contractAddress ||
-        (migration.symbol === token.symbol && migration.name === token.name)
+      // Primary check: Contract address (most reliable)
+      if (token.contractAddress) {
+        const existsByContract = this.data.migrations.some(migration => 
+          migration.contractAddress && 
+          migration.contractAddress.toLowerCase() === token.contractAddress.toLowerCase()
+        );
+        
+        if (existsByContract) {
+          this.logger.debug(`Token already exists by contract address: ${token.symbol} (${token.contractAddress})`);
+          return true;
+        }
+      }
+
+      // Secondary check: Same symbol AND name (for tokens without contract address)
+      const existsBySymbolName = this.data.migrations.some(migration => 
+        migration.symbol.toLowerCase() === token.symbol.toLowerCase() &&
+        migration.name.toLowerCase() === token.name.toLowerCase()
       );
+
+      if (existsBySymbolName) {
+        this.logger.debug(`Token already exists by name/symbol: ${token.name} (${token.symbol})`);
+        return true;
+      }
+
+      // Tertiary check: Same ID
+      const existsById = this.data.migrations.some(migration => 
+        migration.id === token.id
+      );
+
+      if (existsById) {
+        this.logger.debug(`Token already exists by ID: ${token.symbol} (${token.id})`);
+        return true;
+      }
+
+      return false;
     } catch (error) {
       this.logger.error('Failed to check migration existence by details:', error);
       return false;

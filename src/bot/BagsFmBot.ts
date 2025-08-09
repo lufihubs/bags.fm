@@ -18,7 +18,7 @@ export class BagsFmBot {
     this.config = this.loadConfig();
     
     this.bot = new TelegramBot(this.config.telegramBotToken, { polling: true });
-    this.scraper = new BagsFmScraper(this.config.bagsFmUrl);
+    this.scraper = new BagsFmScraper();
     this.database = new DatabaseManager(this.config.databasePath);
   }
 
@@ -134,16 +134,25 @@ export class BagsFmBot {
 
   private async checkForNewMigrations(): Promise<void> {
     try {
-      this.logger.debug('Checking for new token migrations...');
+      this.logger.info('=== STARTING TOKEN MIGRATION CHECK ===');
       
-      const launches = await this.scraper.fetchMigrations();
+      const launches = await this.scraper.getNewMigrations();
+      this.logger.info(`Retrieved ${launches.length} token launches from scraper`);
+      
       const newMigrations: MigratedToken[] = [];
 
       for (const launch of launches) {
+        this.logger.debug(`Checking token: ${launch.symbol} (ID: ${launch.id}, Contract: ${launch.contractAddress})`);
+        
         const exists = await this.database.migrationExistsByDetails(launch);
+        this.logger.debug(`Token ${launch.symbol} exists in database: ${exists}`);
+        
         if (!exists) {
           await this.database.saveMigration(launch);
           newMigrations.push(launch);
+          this.logger.info(`✅ NEW MIGRATION: ${launch.symbol} (${launch.contractAddress})`);
+        } else {
+          this.logger.info(`⏭️  DUPLICATE SKIPPED: ${launch.symbol} (${launch.contractAddress})`);
         }
       }
 
@@ -153,11 +162,12 @@ export class BagsFmBot {
           await this.sendMigrationNotification(migration);
         }
       } else {
-        this.logger.debug('No new token migrations found');
+        this.logger.info('✅ No new token migrations found - all duplicates filtered');
       }
 
     } catch (error) {
-      this.logger.error('Error checking for token migrations:', error);
+      this.logger.error('❌ Error checking for token migrations:', error);
+      console.error('❌ Full error details:', error);
     }
   }
 
